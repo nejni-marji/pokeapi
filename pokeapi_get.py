@@ -18,7 +18,12 @@ if not isdir(CACHE):
 	except:
 		logging.critical('Unable to create cache (unknown error), terminating')
 
-def get_with_cache(url, prefix='', quiet=False):
+def get_raw(url):
+	url_data = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
+	url_data = url_data.read().decode()
+	return url_data
+
+def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
 
 	# prefix is used to check that URLs are from a given domain, and also to
 	# shorten paths for the cache.
@@ -29,20 +34,27 @@ def get_with_cache(url, prefix='', quiet=False):
 		logging.critical('Invalid URL for caching, terminating')
 		exit(1)
 
+	if cache_mode == 'ignore':
+		url_data = get_raw(url)
+		print(url_data)
+		return
+
 	cache_name = url.replace(prefix, '', 1)
 	logging.debug(f'cache_name: {cache_name}')
 
 	cache_path = CACHE + '/' + quote(cache_name, safe=[]) # safe means encode '/'
 	logging.debug(f'cache_path: {cache_path}')
 
-	has_cache = isfile(cache_path)
+	if cache_mode == 'update':
+		has_cache = False
+	else:
+		has_cache = isfile(cache_path)
 	logging.debug(f'has_cache: {has_cache}')
 
 	# right away, let's try to cache data if we need to
 	if not has_cache:
 		logging.info(f'Writing to cache for {cache_name}')
-		url_data = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
-		url_data = url_data.read().decode()
+		url_data = get_raw(url)
 		cache_file = open(cache_path, 'w')
 		cache_file.write(url_data)
 		cache_file.close()
@@ -60,6 +72,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-v', '--verbose', action='count', default=0)
 	parser.add_argument('-q', '--quiet', action='store_true')
+	parser.add_argument('-c', '--cache', action='store',
+			choices=['auto', 'update', 'ignore'], default='auto')
 	parser.add_argument('url', action='store', type=str)
 	args = parser.parse_args()
 
@@ -80,4 +94,4 @@ if __name__ == '__main__':
 	if URL == PREFIX:
 		URL += '/'
 
-	get_with_cache(URL, PREFIX, args.quiet)
+	get_with_cache(URL, PREFIX, args.quiet, args.cache)
