@@ -26,7 +26,7 @@ def get_raw(url):
 	url_data = url_data.read().decode()
 	return url_data
 
-def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
+def get_with_cache(url, prefix='https://pokeapi.co/api/v2/', quiet=False, cache_mode='auto'):
 
 	# prefix is used to check that URLs are from a given domain, and also to
 	# shorten paths for the cache.
