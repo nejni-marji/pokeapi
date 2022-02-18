@@ -38,8 +38,7 @@ def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
 
 	if cache_mode == 'ignore':
 		url_data = get_raw(url)
-		print(url_data)
-		return
+		return url_data
 
 	cache_name = url.replace(prefix, '', 1)
 	logging.debug(f'cache_name: {cache_name}')
@@ -63,13 +62,13 @@ def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
 
 	if not quiet:
 		if not has_cache:
-			print(url_data)
+			return url_data
 		else:
 			logging.info(f'Reading from cache for {cache_name}')
 			cache_file = open(cache_path, 'r')
 			cache_data = cache_file.read()
 			cache_file.close()
-			print(cache_data)
+			return cache_data
 	else:
 		logging.info('Running in quiet mode')
 
@@ -99,4 +98,5 @@ if __name__ == '__main__':
 	if URL == PREFIX:
 		URL += '/'
 
-	get_with_cache(URL, PREFIX, args.quiet, args.cache)
+	api_data = get_with_cache(URL, PREFIX, args.quiet, args.cache)
+	print(api_data)
