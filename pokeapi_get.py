@@ -6,6 +6,9 @@ from os.path import isfile, isdir
 from os import mkdir
 from xdg.BaseDirectory import xdg_cache_home
 
+class PrefixError(Exception):
+	pass
+
 # if you arent on linux, you'll have to figure this out yourself. good luck
 CACHE=xdg_cache_home + '/pokeapi'
 
@@ -31,8 +34,7 @@ def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
 	logging.debug(f'prefix: {prefix}')
 
 	if not url.startswith(prefix):
-		logging.critical('Invalid URL for caching, terminating')
-		exit(1)
+		raise PrefixError
 
 	if cache_mode == 'ignore':
 		url_data = get_raw(url)
