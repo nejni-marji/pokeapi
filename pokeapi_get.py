@@ -60,11 +60,14 @@ def get_with_cache(url, prefix='', quiet=False, cache_mode='auto'):
 		cache_file.close()
 
 	if not quiet:
-		logging.info(f'Reading from cache for {cache_name}')
-		cache_file = open(cache_path, 'r')
-		cache_data = cache_file.read()
-		cache_file.close()
-		print(cache_data)
+		if not has_cache:
+			print(url_data)
+		else:
+			logging.info(f'Reading from cache for {cache_name}')
+			cache_file = open(cache_path, 'r')
+			cache_data = cache_file.read()
+			cache_file.close()
+			print(cache_data)
 	else:
 		logging.info('Running in quiet mode')
 
